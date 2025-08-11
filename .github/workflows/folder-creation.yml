@@ -64,6 +64,13 @@ jobs:
       
       - name: Install dependencies
         run: |
+          echo "=== PRE-INSTALL DEBUG ==="
+          pwd
+          ls -la
+          echo "Checking Folder Automation directory:"
+          ls -la "Folder Automation" || echo "Folder Automation directory not found!"
+          echo "=========================="
+          
           cd "Folder Automation"
           pip install -r requirements.txt
       
@@ -72,7 +79,14 @@ jobs:
         env:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
         run: |
+          echo "=== STARTING FOLDER CREATION ==="
+          pwd
+          ls -la
+          echo "Changing to Folder Automation directory..."
           cd "Folder Automation"
+          pwd
+          ls -la
+          echo "================================="
           
           # Debug: Show what we're working with
           echo "Organization name: '${{ steps.extract_data.outputs.organization_name }}'"
@@ -81,6 +95,10 @@ jobs:
           echo "Service account secret length: ${#GOOGLE_SERVICE_ACCOUNT_JSON}"
           
           # Run the folder creation script
+          echo "About to run Python script with org name: '${{ steps.extract_data.outputs.organization_name }}'"
+          echo "Python version:"
+          python --version
+          echo "Running script..."
           OUTPUT=$(python create_folders.py "${{ steps.extract_data.outputs.organization_name }}" 2>&1)
           EXIT_CODE=$?
           
@@ -153,3 +171,4 @@ jobs:
         with:
           issue-number: ${{ github.event.issue.number }}
           comment: This folder creation request has been processed automatically.
+
