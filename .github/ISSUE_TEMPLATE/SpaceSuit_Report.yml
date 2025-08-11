@@ -1,0 +1,392 @@
+name: CMMC Space GWS Control Review
+description: Control implementation review checklist for CMMC Space Google Workspace controls.
+title: "[Control Review]: "
+body:
+  - type: input
+    id: Name
+    attributes:
+      label: Name of Reviewer
+      description: Who is conducting the review?
+      placeholder: ex. John Doe
+    validations:
+      required: true
+
+  - type: input
+    id: info
+    attributes:
+      label: Date of Review
+      description: Day/Month/Year this review was conducted.
+      placeholder: ex. 1 Sep 2025
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        ## Common Controls
+
+  - type: checkboxes
+    id: dns_records
+    attributes:
+      label: DNS Records
+      options:
+      - label: "CSPACE.COMMONCONTROLS-1.1v1.0.0: SPF TXT record is correct."
+      - label: "CSPACE.COMMONCONTROLS-1.2v1.0.0: DMARC TXT record is correct."
+      - label: "CSPACE.COMMONCONTROLS-1.3v1.0.0 (Admin console): DKIM authentication is active."
+
+  - type: checkboxes
+    id: controls_mfa
+    attributes:
+      label: Replay Resistant MFA
+      options:
+        - label: 'CSPACE.COMMONCONTROLS-2.1v1.0.0: 2SV Enforcement = On. Allowed methods exclude SMS or phone call.'
+          required: true
+        - label: 'CSPACE.COMMONCONTROLS-2.2v1.0.0: New user enrollment period = 1 week.'
+          required: true
+        - label: 'CSPACE.COMMONCONTROLS-2.3v1.0.0: Allow user to trust device = Off.'
+          required: true
+
+  - type: checkboxes
+    id: context_aware_access
+    attributes:
+      label: Context-Aware Access
+      options:
+      - label: "CSPACE.COMMONCONTROLS.3.1v1.0.0(a): Access level 'Browser' created and assigned."
+      - label: "CSPACE.COMMONCONTROLS.3.1v1.0.0(b): Access level 'NAT' created and assigned."
+      - label: "CSPACE.COMMONCONTROLS.3.1v1.0.0(c): User message set; CAA turned on."
+      - label: "Optional: CSPACE.COMMONCONTROLS.3.1v1.0.0-COND: Access level 'Chromebook' created and assigned."
+      - label: "Optional: Required Chrome extensions (Endpoint Verification, Certificate Enrollment) installed for COND."
+
+  - type: checkboxes
+    id: controls_user_management
+    attributes:
+      label: User Credential Management
+      options:
+        - label: 'CSPACE.COMMONCONTROLS.4.1v1.0.0 (Security > Account Recovery): Super admin account recovery = Off.'
+          required: true
+        - label: 'CSPACE.COMMONCONTROLS.4.2v1.0.0 (Security > Login Challenges): Post-SSO Verification = On (apply 2SV).'
+          required: true
+        - label: 'CSPACE.COMMONCONTROLS.4.3v1.0.0 (Security > Password management): Enforce password policy at next sign-in = On.'
+          required: true
+        - label: 'CSPACE.COMMONCONTROLS.4.4v1.0.0 (Optional) (Security > MPA): Require MPA for sensitive admin actions = On.'
+          required: true
+        - label: 'CSPACE.COMMONCONTROLS.4.5v1.0.0 (Data > Takeout): All services = Don’t allow.'
+          required: true
+
+  - type: checkboxes
+    id: controls_api_access
+    attributes:
+      label: Google API Access and Marketplace Configuration
+      options:
+        - label: 'CSPACE.COMMONCONTROLS.5.1v1.0.0 (Apps > Marketplace > Settings): Only allow allowlisted apps.'
+          required: true
+        - label: 'CSPACE.COMMONCONTROLS.5.2v1.0.0 (Apps > Additional Google services): All services Off except selected.'
+          required: true
+        - label: 'CSPACE.COMMONCONTROLS.5.3v1.0.0 (Security > API controls): Allowlist uploaded for CMMC Space, Stellar Guard, ZIP Extractor.'
+          required: true
+        - label: 'CSPACE.COMMONCONTROLS.5.4v1.0.0 (Security > API controls): Unconfigured third-party apps = Don’t allow.'
+          required: true
+        - label: 'CSPACE.COMMONCONTROLS.5.5v1.0.0 (Security > API controls): Trust internal apps = Off.'
+          required: true
+        - label: 'CSPACE.COMMONCONTROLS.5.6v1.0.0 (Security > API controls): Access = Restricted (only trusted apps).'
+          required: true
+
+  - type: checkboxes
+    id: data_compliance
+    attributes:
+      label: Data Compliance Settings
+      options:
+        - label: 'CSPACE.COMMONCONTROLS.6.1v1.0.0: Data Regions > Data at rest = United States.'
+          required: true
+        - label: "CSPACE.COMMONCONTROLS.6.2v1.0.0: Data Regions > Process data in same region = On."
+          required: true
+        - label: "CSPACE.COMMONCONTROLS.6.3v1.0.0: Client-side encryption configured with external key service."
+          required: true
+        - label: "CSPACE.COMMONCONTROLS.6.4v1.0.0-COND: Access Approvals = Require Google staff to request approval = On."
+          required: true
+        - label: "CSPACE.COMMONCONTROLS.6.5v1.0.0-COND: Access by U.S. Google staff only = On."
+          required: true
+        - label: "CSPACE.COMMONCONTROLS.6.6v1.0.0-COND (Rules > Data protection): Rule for 'Emails labeled as CUI' exists."
+          required: true
+ 
+  - type: checkboxes
+    id: account_and_role_settings
+    attributes:
+      label: Account and Role Settings
+      options:
+       - label: "CSPACE.COMMONCONTROLS.7.1v1.0.0 (Rules): 'Apps outage alert' rule exists."
+         required: true
+       - label: "CSPACE.COMMONCONTROLS.7.2v1.0.0 (Account settings > Sharing options): Enabled."
+         required: true
+       - label: "CSPACE.COMMONCONTROLS.7.3v1.0.0 (Admin roles): 2–4 super admins assigned."
+         required: true
+       - label: "CSPACE.COMMONCONTROLS.7.4v1.0.0 (Optional): 'Power User' role exists with correct privileges."
+         required: true
+       - label: "CSPACE.COMMONCONTROLS.7.5v1.0.0 (Admin roles): 'CMMC Space Admin' role exists with correct service accounts."
+         required: true
+       - label: "CSPACE.COMMONCONTROLS.7.6v1.0.0-COND: Customer org-level logging sink configured if automation fails."
+         required: true
+
+  - type: markdown
+    attributes:
+      value: "---"
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Chrome & Browser
+        
+  - type: checkboxes
+    id: managed_browser
+    attributes:
+      label: Managed Browser Enrollment
+      options:
+        - label: "CSPACE.CHROME-1.1v1.0.0: Chrome Enterprise Core enrollment token used."
+          required: true
+    
+  - type: checkboxes
+    id: sign_in
+    attributes:
+      label: Sign-in and Network Settings
+      options:
+        - label: "CSPACE.CHROME-2.1v1.0.0: Restrict sign-in to pattern."
+          required: true
+        - label: "CSPACE.CHROME-2.2v1.0.0: Enforce enterprise profile separation = On."
+          required: true
+        - label: "CSPACE.CHROME-2.3v1.0.0: Enforce secondary account restrictions."
+          required: true
+        - label: "CSPACE.CHROME-2.4v1.0.0: Enforce DNS over HTTPS: https://dns.google/dns-query"
+          required: true
+    
+  - type: checkboxes
+    id: start_up
+    attributes:
+      label: Startup and Content Settings
+      options:
+      - label: "CSPACE.CHROME-3.1v1.0.0: Homepage button display forced."
+        required: true
+      - label: "CSPACE.CHROME-3.2v1.0.0: Homepage configured to home.cmmc.space"
+        required: true
+      - label: "CSPACE.CHROME-3.3v1.0.0: HTTPS-Only mode enabled."
+        required: true
+      - label: "CSPACE.CHROME-3.4v1.0.0: Printing disabled."
+        required: true
+      - label: "CSPACE.CHROME-3.5v1.0.0: Bookmarks configured."
+        required: true
+      - label: "CSPACE.CHROME-3.6v1.0.0: Bookmark bar display forced."
+        required: true
+      - label: "CSPACE.CHROME-3.7v1.0.0: Google Lens disabled."
+        required: true
+
+  - type: checkboxes
+    id: reporting_safety
+    attributes:
+      label: Reporting and Safety
+      options:
+      - label: "CSPACE.CHROME-4.1v1.0.0: Managed browser reporting enabled."
+        required: true
+      - label: "CSPACE.CHROME-4.2v1.0.0: Managed profile reporting enabled."
+        required: true
+      - label: "CSPACE.CHROME-4.3v1.0.0: Safe Browsing in enhanced mode enabled." 
+        required: true
+
+  - type: checkboxes
+    id: chrome_extensions
+    attributes:
+      label: Chrome Extensions
+      options:
+      - label: "Save to Drive installed across organization."
+        required: true
+
+  - type: markdown
+    attributes:
+      value: "---"  
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Google Calendar
+    
+  - type: checkboxes
+    id: sharing_interop
+    attributes:
+      label: Sharing and Interop Settings
+      options:
+        - label: "CSPACE.CALENDAR-1.1v1.0.0: External sharing options set to 'Only Free/Busy'."
+          required: true
+        - label: "CSPACE.CALENDAR-1.2v1.0.0: Calendar Interop disabled."
+          required: true
+
+  - type: markdown
+    attributes:
+      value: "---"
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Google Drive
+    
+  - type: checkboxes
+    id: sharing_settings
+    attributes:
+      label: Sharing Settings Configuration
+      options:
+        - label: "CSPACE.DRIVE-1.1v1.0.0: Public link sharing disabled."
+          required: true
+        - label: "CSPACE.DRIVE-1.2v1.0.0: Access Checker set to recipients only, or suggested audience."
+          required: true
+        - label: "CSPACE.DRIVE-1.3v1.0.0: Only organization users can distribute content."
+          required: true
+        - label: "CSPACE.DRIVE-1.4v1.0.0: Managers cannot override shared drive settings."
+          required: true
+        - label: "CSPACE.DRIVE-1.5v1.0.0: Download, print, and copy set to managers and contributors."
+          required: true
+
+  - type: checkboxes
+    id: least_function
+    attributes:
+      label: Configuring Least Functionality
+      options:
+        - label: "Optional: CSPACE.DRIVE-2.1v1.0.0: Drive SDK disabled."
+          required: true
+        - label: "CSPACE.DRIVE-2.2v1.0.0: Drive for Desktop disabled."
+          required: true
+        - label: "CSPACE.DRIVE-2.3v1.0.0: Drive for Deskstop sync disabled."
+          required: true
+
+  - type: markdown
+    attributes:
+      value: "---"
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Gmail     
+    
+  - type: checkboxes
+    id: authentication_safety
+    attributes:
+      label: Authentication and Safety
+      options:
+        - label: "CSPACE.GMAIL-1.1v1.0.0: Protect against encrypted attachments from untrusted senders is checked."
+          required: true
+        - label: "CSPACE.GMAIL-1.2v1.0.0: Protect against attachments with scripts from untrusted senders is checked."
+          required: true
+        - label: "CSPACE.GMAIL-1.3v1.0.0: Protect against anomalous attachment types in emails is checked."
+          required: true
+        - label: "CSPACE.GMAIL-1.4v1.0.0: Protect against unauthenticated emails is checked."
+          required: true
+        - label: "CSPACE.GMAIL-1.5v1.0.0: Protect your Groups from inbound emails spoofing your domain is checked, and applied to all groups." 
+          required: true
+
+  - type: checkboxes
+    id: end_user
+    attributes:
+      label: End User Access
+      options:
+        - label: "CSPACE.GMAIL-2.1v1.0.0: POP and IMAP disabled."
+          required: true
+        - label: "CSPACE.GMAIL-2.2v1.0.0: Google Workspace Sync for Outlook disabled."
+          required: true
+        - label: "CSPACE.GMAIL-2.3v1.0.0: Automatic forwarding disabled."
+          required: true
+
+  - type: checkboxes
+    id: spam_phishing_malware
+    attributes:
+      label: Spam, Phishing and Malware
+      options:
+        - label: "CSPACE.GMAIL-3.1v1.0.0: Blocklists and machine learning to reclassify spam enabled."
+          required: true
+        - label: "CSPACE.GMAIL-3.2v1.0.0: Security Sandbox enabled."
+          required: true
+        - label: "CSPACE.GMAIL-3.3v1.0.0-COND: Blocked senders configured, if applicable."
+          required: true
+
+  - type: checkboxes
+    id: compliance_routing
+    attributes:
+      label: Compliance and Routing
+      options:
+        - label: "CSPACE.GMAIL-4.1v1.0.0: OCR enabled."
+          required: true
+        - label: "CSPACE.GMAIL-4.2v1.0.0: Comprehensive mail storage enabled."
+          required: true
+        - label: "CSPACE.GMAIL-4.3v1.0.0: Footer appendment configured and enabled."
+          required: true
+        - label: "CSPACE.GMAIL-4.4v1.0.0: TLS inbound and outbound enabled."
+          required: true
+
+  - type: markdown
+    attributes:
+      value: "---"
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Google Chat
+    
+  - type: checkboxes
+    id: chat_history
+    attributes:
+      label: Chat and Space History
+      options:
+        - label: "CSPACE.CHAT-1.1v1.0.0: Users cannot disabled chat history."
+          required: true
+        - label: "CSPACE.CHAT-1.2v1.0.0: Space history is always on."
+          required: true
+    
+  - type: checkboxes
+    id: file_sharing
+    attributes:
+      label: File Sharing and Apps
+      options:
+        - label: "CSPACE.CHAT-2.1v1.0.0: External file sharing disabled."
+          required: true
+        - label: "CSPACE.CHAT-2.2v1.0.0: Chat apps and webhooks disabled."
+          required: true
+
+  - type: markdown
+    attributes:
+      value: "---"
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Google Meet
+    
+  - type: checkboxes
+    id: host_config
+    attributes:
+      label: Host Configuration
+      options:
+       - label: "CSPACE.MEET-1.1v1.0.0: Meet streaming disabled."
+         required: true
+       - label: "CSPACE.MEET-1.2v1.0.0: Meeting access restricted."
+         required: true
+       - label: "CSPACE.MEET-1.3v1.0.0: Host management turned on."
+         required: true
+
+  - type: markdown
+    attributes:
+      value: "---"
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Google Groups
+            
+  - type: checkboxes
+    id: group_sharing
+    attributes:
+      label: Sharing Settings
+      options:
+        - label: "CSPACE.GROUPS-1.1v1.0.0: Only admins can create groups."
+          required: true
+        - label: "CSPACE.GROUPS-1.2v1.0.0: Only group owners can allow external members."
+          required: true
+        - label: "CSPACE.GROUPS-1.3v1.0.0: Only group owners can allow incoming external email."
+          required: true
+        - label: "CSPACE.GROUPS-1.4v1.0.0: Only group members can view group conversations."
+          required: true
+        - label: "CSPACE.GROUPS-1.5v1.0.0: Only group owners and managers can add groups to space."
+          required: true
