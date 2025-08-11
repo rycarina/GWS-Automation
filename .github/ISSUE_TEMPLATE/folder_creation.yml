@@ -1,0 +1,27 @@
+name: Client Folder Creation
+description: Create a new client folder structure in Google Drive
+title: "[Folder Creation]: "
+labels: ["folder-creation"]
+body:
+  - type: input
+    id: organization_name
+    attributes:
+      label: Organization Name
+      description: Name of the organization for folder creation
+      placeholder: ex. ACME Corporation
+    validations:
+      required: true
+  
+  - type: markdown
+    attributes:
+      value: |
+        ## What happens next?
+        
+        Once you submit this issue:
+        1. A new folder structure will be created in Google Drive
+        2. The main folder will be named `[Organization Name] (L2)`
+        3. All template subfolders and files will be copied
+        4. The "Authorized User List" will be renamed to include the organization name
+        5. This issue will be automatically closed upon completion
+        
+        **Note**: Please ensure the organization name is spelled correctly as it will be used in the folder and file names.
