@@ -99,8 +99,12 @@ jobs:
           echo "Python version:"
           python --version
           echo "Running script..."
+          
+          # Capture output but don't exit on failure yet
+          set +e
           OUTPUT=$(python create_folders.py "${{ steps.extract_data.outputs.organization_name }}" 2>&1)
           EXIT_CODE=$?
+          set -e
           
           echo "=== SCRIPT OUTPUT ==="
           echo "$OUTPUT"
@@ -171,4 +175,5 @@ jobs:
         with:
           issue-number: ${{ github.event.issue.number }}
           comment: This folder creation request has been processed automatically.
+
 
