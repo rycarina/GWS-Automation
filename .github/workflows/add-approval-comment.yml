@@ -1,0 +1,26 @@
+name: Add Approval Comment
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  add-comment:
+    # Only run on change request issues
+    if: contains(github.event.issue.labels.*.name, 'change request') || contains(github.event.issue.labels.*.name, 'offboarding') || contains(github.event.issue.labels.*.name, 'etp')
+    runs-on: ubuntu-2204
+    permissions:
+      issues: write
+    
+    steps:
+      - name: Add approval comment
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            ## Approval Zone
+            
+            ### Approver
+            <!-- Please fill in the approver's name -->
+            
+            ### Approval
+            - [ ] I approve this change and validate that it complies with the Change Management Process 
