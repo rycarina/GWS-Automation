@@ -23,20 +23,39 @@ jobs:
           # Extract organization name from issue body
           ISSUE_BODY="${{ github.event.issue.body }}"
           
-          # Use grep to find the organization name after the label
-          ORG_NAME=$(echo "$ISSUE_BODY" | grep -A 1 "Organization Name" | tail -1 | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//')
+          # Debug: Show the issue body
+          echo "=== ISSUE BODY DEBUG ==="
+          echo "$ISSUE_BODY"
+          echo "=========================="
+          
+          # Try multiple extraction methods
+          # Method 1: Look for lines after "Organization Name"
+          ORG_NAME=$(echo "$ISSUE_BODY" | grep -A 3 "Organization Name" | tail -1 | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//')
+          
+          # Method 2: If empty, try looking for the pattern with ###
+          if [ -z "$ORG_NAME" ]; then
+            ORG_NAME=$(echo "$ISSUE_BODY" | sed -n '/### Organization Name/,/###/p' | sed '1d;$d' | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//' | head -1)
+          fi
+          
+          # Method 3: If still empty, try simpler pattern
+          if [ -z "$ORG_NAME" ]; then
+            ORG_NAME=$(echo "$ISSUE_BODY" | sed -n 's/.*Organization Name.*//p' | sed -n '2p' | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//')
+          fi
           
           # Remove any potential markdown formatting
           ORG_NAME=$(echo "$ORG_NAME" | sed 's/^\*\*\|\*\*$//g' | sed 's/^__\|__$//g')
           
+          echo "Extracted organization name: '$ORG_NAME'"
+          
           # Validate organization name is not empty
           if [ -z "$ORG_NAME" ]; then
             echo "Error: Organization name not found in issue body"
+            echo "Tried multiple extraction methods but all failed"
             exit 1
           fi
           
           echo "organization_name=$ORG_NAME" >> $GITHUB_OUTPUT
-          echo "Found organization name: $ORG_NAME"
+          echo "Successfully found organization name: $ORG_NAME"
       
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -134,4 +153,3 @@ jobs:
         with:
           issue-number: ${{ github.event.issue.number }}
           comment: This folder creation request has been processed automatically.
-
