@@ -7,7 +7,7 @@ on:
 jobs:
   create-folders:
     # Only run on folder creation issues
-    if: contains(github.event.issue.labels.*.name, 'folder-creation')
+    if: contains(github.event.issue.title, '[Folder Creation]')
     runs-on: ubuntu-latest
     permissions:
       issues: write
