@@ -55,12 +55,19 @@ jobs:
         run: |
           cd "Folder Automation"
           
+          # Debug: Show what we're working with
+          echo "Organization name: '${{ steps.extract_data.outputs.organization_name }}'"
+          echo "Config file exists: $(test -f config.json && echo 'YES' || echo 'NO')"
+          echo "Python script exists: $(test -f create_folders.py && echo 'YES' || echo 'NO')"
+          echo "Service account secret length: ${#GOOGLE_SERVICE_ACCOUNT_JSON}"
+          
           # Run the folder creation script
           OUTPUT=$(python create_folders.py "${{ steps.extract_data.outputs.organization_name }}" 2>&1)
           EXIT_CODE=$?
           
-          echo "Script output:"
+          echo "=== SCRIPT OUTPUT ==="
           echo "$OUTPUT"
+          echo "=== EXIT CODE: $EXIT_CODE ==="
           
           # Parse JSON output
           if [ $EXIT_CODE -eq 0 ]; then
@@ -127,3 +134,4 @@ jobs:
         with:
           issue-number: ${{ github.event.issue.number }}
           comment: This folder creation request has been processed automatically.
+
