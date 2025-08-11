@@ -110,19 +110,23 @@ jobs:
           echo "$OUTPUT"
           echo "=== EXIT CODE: $EXIT_CODE ==="
           
-          # Parse JSON output
+          # Parse JSON output (handle GitHub secret masking)
           if [ $EXIT_CODE -eq 0 ]; then
-            FOLDER_URL=$(echo "$OUTPUT" | jq -r '.folder_url // "N/A"')
-            FOLDER_NAME=$(echo "$OUTPUT" | jq -r '.folder_name // "N/A"')
-            MESSAGE=$(echo "$OUTPUT" | jq -r '.message // "Folder created successfully"')
+            # Remove GitHub secret masking artifacts and extract JSON
+            CLEAN_OUTPUT=$(echo "$OUTPUT" | sed 's/\*\*\*//g' | grep -E '^\s*[{}"]' | tail -n +1)
+            FOLDER_URL=$(echo "$CLEAN_OUTPUT" | jq -r '.folder_url // "N/A"' 2>/dev/null || echo "N/A")
+            FOLDER_NAME=$(echo "$CLEAN_OUTPUT" | jq -r '.folder_name // "N/A"' 2>/dev/null || echo "N/A")
+            MESSAGE=$(echo "$CLEAN_OUTPUT" | jq -r '.message // "Folder created successfully"' 2>/dev/null || echo "Folder created")
             
             echo "success=true" >> $GITHUB_OUTPUT
             echo "folder_url=$FOLDER_URL" >> $GITHUB_OUTPUT
             echo "folder_name=$FOLDER_NAME" >> $GITHUB_OUTPUT
             echo "message=$MESSAGE" >> $GITHUB_OUTPUT
           else
-            ERROR_MSG=$(echo "$OUTPUT" | jq -r '.error // "Unknown error occurred"')
-            MESSAGE=$(echo "$OUTPUT" | jq -r '.message // "Folder creation failed"')
+            # Handle error output with secret masking
+            CLEAN_OUTPUT=$(echo "$OUTPUT" | sed 's/\*\*\*//g' | grep -E '^\s*[{}"]' | tail -n +1)
+            ERROR_MSG=$(echo "$CLEAN_OUTPUT" | jq -r '.error // "Unknown error occurred"' 2>/dev/null || echo "See logs for details")
+            MESSAGE=$(echo "$CLEAN_OUTPUT" | jq -r '.message // "Folder creation failed"' 2>/dev/null || echo "Folder creation failed")
             
             echo "success=false" >> $GITHUB_OUTPUT
             echo "error=$ERROR_MSG" >> $GITHUB_OUTPUT
@@ -175,5 +179,6 @@ jobs:
         with:
           issue-number: ${{ github.event.issue.number }}
           comment: This folder creation request has been processed automatically.
+
 
 
