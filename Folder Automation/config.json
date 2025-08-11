@@ -1,0 +1,12 @@
+{
+  "google_drive": {
+    "template_folder_id": "REPLACE_WITH_TEMPLATE_FOLDER_ID",
+    "destination_folder_id": "REPLACE_WITH_DESTINATION_FOLDER_ID"
+  },
+  "folder_structure": {
+    "main_folder_suffix": " (L2)",
+    "shared_folder_name": "Shared with Client",
+    "user_list_original_name": "Authorized User List",
+    "user_list_suffix": " Authorized User List"
+  }
+}
