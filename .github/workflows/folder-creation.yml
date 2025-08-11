@@ -1,0 +1,129 @@
+name: Create Client Folder Structure
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  create-folders:
+    # Only run on folder creation issues
+    if: contains(github.event.issue.labels.*.name, 'folder-creation')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Extract organization name from issue
+        id: extract_data
+        run: |
+          # Extract organization name from issue body
+          ISSUE_BODY="${{ github.event.issue.body }}"
+          
+          # Use grep to find the organization name after the label
+          ORG_NAME=$(echo "$ISSUE_BODY" | grep -A 1 "Organization Name" | tail -1 | sed 's/^[[:space:]]*//' | sed 's/[[:space:]]*$//')
+          
+          # Remove any potential markdown formatting
+          ORG_NAME=$(echo "$ORG_NAME" | sed 's/^\*\*\|\*\*$//g' | sed 's/^__\|__$//g')
+          
+          # Validate organization name is not empty
+          if [ -z "$ORG_NAME" ]; then
+            echo "Error: Organization name not found in issue body"
+            exit 1
+          fi
+          
+          echo "organization_name=$ORG_NAME" >> $GITHUB_OUTPUT
+          echo "Found organization name: $ORG_NAME"
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          cd "Folder Automation"
+          pip install -r requirements.txt
+      
+      - name: Create folder structure
+        id: create_folders
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          cd "Folder Automation"
+          
+          # Run the folder creation script
+          OUTPUT=$(python create_folders.py "${{ steps.extract_data.outputs.organization_name }}" 2>&1)
+          EXIT_CODE=$?
+          
+          echo "Script output:"
+          echo "$OUTPUT"
+          
+          # Parse JSON output
+          if [ $EXIT_CODE -eq 0 ]; then
+            FOLDER_URL=$(echo "$OUTPUT" | jq -r '.folder_url // "N/A"')
+            FOLDER_NAME=$(echo "$OUTPUT" | jq -r '.folder_name // "N/A"')
+            MESSAGE=$(echo "$OUTPUT" | jq -r '.message // "Folder created successfully"')
+            
+            echo "success=true" >> $GITHUB_OUTPUT
+            echo "folder_url=$FOLDER_URL" >> $GITHUB_OUTPUT
+            echo "folder_name=$FOLDER_NAME" >> $GITHUB_OUTPUT
+            echo "message=$MESSAGE" >> $GITHUB_OUTPUT
+          else
+            ERROR_MSG=$(echo "$OUTPUT" | jq -r '.error // "Unknown error occurred"')
+            MESSAGE=$(echo "$OUTPUT" | jq -r '.message // "Folder creation failed"')
+            
+            echo "success=false" >> $GITHUB_OUTPUT
+            echo "error=$ERROR_MSG" >> $GITHUB_OUTPUT
+            echo "message=$MESSAGE" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+      
+      - name: Comment on success
+        if: steps.create_folders.outputs.success == 'true'
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            ## ✅ Folder Creation Successful!
+            
+            **Organization:** ${{ steps.extract_data.outputs.organization_name }}
+            **Folder Name:** `${{ steps.create_folders.outputs.folder_name }}`
+            **Folder URL:** [${{ steps.create_folders.outputs.folder_name }}](${{ steps.create_folders.outputs.folder_url }})
+            
+            ### What was created:
+            - Main folder: `${{ steps.create_folders.outputs.folder_name }}`
+            - Complete template folder structure copied
+            - "Authorized User List" renamed to "${{ steps.extract_data.outputs.organization_name }} Authorized User List"
+            
+            The folder structure is now ready for use!
+      
+      - name: Comment on failure
+        if: failure()
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            ## ❌ Folder Creation Failed
+            
+            **Organization:** ${{ steps.extract_data.outputs.organization_name }}
+            **Error:** ${{ steps.create_folders.outputs.error || 'Unknown error occurred' }}
+            **Message:** ${{ steps.create_folders.outputs.message || 'Please check the workflow logs for details' }}
+            
+            Please check the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for detailed error information.
+            
+            Common issues:
+            - Invalid Google Drive folder IDs in configuration
+            - Service account permissions
+            - Template folder access
+            
+            Please resolve the issue and create a new folder creation request.
+      
+      - name: Close issue
+        uses: peter-evans/close-issue@v3
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          comment: This folder creation request has been processed automatically.
